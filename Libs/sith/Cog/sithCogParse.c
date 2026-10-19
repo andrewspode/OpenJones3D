@@ -498,7 +498,7 @@ SithCogSyntaxNode* J3DAPI sithCogParse_MakeLeafNode(SithCogExecOpcode opcode, in
 SithCogSyntaxNode* J3DAPI sithCogParse_MakeVectorLeafNode(SithCogExecOpcode opcode, const rdVector3* pVect)
 {
     SithCogSyntaxNode* pNewNode = sithCogParse_GetNextNode();
-    if ( !pNewNode ) // Fixed: was !sithCogParse_GetNextNode
+    if ( !pNewNode ) // Fixed: [v1.2] was !sithCogParse_GetNextNode
     {
         return pNewNode;
     }

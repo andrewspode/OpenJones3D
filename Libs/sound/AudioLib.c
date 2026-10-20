@@ -1309,8 +1309,8 @@ int J3DAPI AudioLib_WVSMCompressBlock(uint8_t* pOutBuffer, const uint8_t* pInBuf
     int lsavedBits;
     int v47;
     int rightOffset;
-    int leftBits[17];
-    int rightBits[17];
+    int leftBits[18];
+    int rightBits[18]; // Fixed: Was 17 entries, see leftBits
     int blockSizea;
 
     pInBuffer_1 = pInBuffer;
@@ -1324,14 +1324,10 @@ int J3DAPI AudioLib_WVSMCompressBlock(uint8_t* pOutBuffer, const uint8_t* pInBuf
 
     if ( size_1 > 0 )
     {
-        int outOfBoundsLeft = 0;
-        int outOfBoundsRight = 0;
         sampleCount = (unsigned int)(size_1 + 1) >> 1;
 
         // Note in debug version of Indy3D.exe the loop is the same only the loop range is different.
         // In debug version the loop range is defined as counter = 0; while(counter < size_1) {... counter += 2; }
-        // This change still causes the rightBits or leftBits to be rad out of bounds,
-        // so the change must be somewhere else in order for the debug version to run normally
         do
         {
             curLeftSamp = *(int16_t*)pInBuffer_1;
@@ -1341,18 +1337,12 @@ int J3DAPI AudioLib_WVSMCompressBlock(uint8_t* pOutBuffer, const uint8_t* pInBuf
                 curLeftSamp = -curLeftSamp;
             }
 
-            for ( i = 0; curLeftSamp; ++i ) // [ADD] Fixed init i value (orig. i = 1) which caused out of bounds access
+            for ( i = 1; curLeftSamp; ++i )
             {
                 curLeftSamp >>= 1;
             }
 
             pInBuffer_1 = v8 + 2;
-
-            if ( i > 16 ) // [ADD] bound check fix
-            {
-                i = 16;
-                outOfBoundsLeft++;
-            }
             ++leftBits[i];
 
             curRightSamp = *((int16_t*)pInBuffer_1 - 1);
@@ -1361,28 +1351,14 @@ int J3DAPI AudioLib_WVSMCompressBlock(uint8_t* pOutBuffer, const uint8_t* pInBuf
                 curRightSamp = -curRightSamp;
             }
 
-            for ( j = 0; curRightSamp; ++j ) // [ADD] Fixed init j value (orig. j = 1)
+            for ( j = 1; curRightSamp; ++j )
             {
                 curRightSamp >>= 1;
             }
 
             --sampleCount;
-
-            if ( j > 16 ) // [ADD] bound check fix
-            {
-                j = 16;
-                outOfBoundsRight++;
-            }
             ++rightBits[j];
         } while ( sampleCount );
-
-        if ( outOfBoundsLeft || outOfBoundsRight )
-        {
-            // TODO: make separate log function var for audio lib
-          /*  if (Sound_pHS) {
-                Sound_pHS->logWarning("AudioLib_WVSMCompressBlock: %d left bits out of bounds, %d right bits out of bounds\n", outOfBoundsLeft, outOfBoundsRight);
-            }*/
-        }
     }
 
     kRight_1 = 8;

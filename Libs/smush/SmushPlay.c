@@ -5,6 +5,8 @@
 #include <smush/RTI/symbols.h>
 #include <string.h>
 
+#include <std/General/stdUtil.h>
+
 #include <smush/insane/Animate/Frame.h>
 #include <smush/insane/Animate/Pcplay.h>
 #include <smush/insane/Bitmap/Bitmap.h>
@@ -112,8 +114,8 @@ int J3DAPI SmushPlay_PlayMovie(const char* pFilename, int a1, int a3, int a4, in
     char aPath[260];
     uint8_t aPalette[1024];
 
-    // TODO: [BUG] Unbounded copy of the file name into the 260 byte buffer.
-    memcpy(aPath, pFilename, strlen(pFilename) + 1);
+    // Fixed: The original copies the whole file name into the 260 byte buffer without a bound. Truncate the name to the buffer
+    STD_STRCPY(aPath, pFilename);
 
     if ( a1 == 0 )
     {

@@ -140,15 +140,14 @@ int J3DAPI memory_Check(char* pRaw, int size, const char* pFile, int line, const
 
 void* J3DAPI memory_debugRealloc(void* pBlock, int size, const char* pFile, int line)
 {
-    char* pRaw = pBlock;
-    int base = 0;
-
-    // TODO: [BUG] A NULL pBlock is not handled: it is dereferenced below (and base is not set).
-    if ( pRaw )
+    // Fixed: The original dereferences a NULL block below (the NULL test only guards the offsets). Like realloc, a NULL block is a plain allocation
+    if ( pBlock == NULL )
     {
-        pRaw -= 4;
-        base = memory_total - *(int*)pRaw - 4;
+        return memory_debugAlloc(size, pFile, line);
     }
+
+    char* pRaw = (char*)pBlock - 4;
+    int base   = memory_total - *(int*)pRaw - 4;
 
     if ( memory_Check(pRaw, *(int*)pRaw, pFile, line, "Re-Free") )
     {

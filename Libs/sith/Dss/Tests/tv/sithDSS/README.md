@@ -223,7 +223,10 @@ changes of both records.
   `sithDSS_ProcessPuppetStatus`, armed/move modes and track counts) have no original
   behavior to compare with and are not part of the corpus.
 - Counts that overflow fixed arrays (`sithDSS_ProcessSyncGameState` chalk marks,
-  `sithDSSThing_ProcessStateUpdate` backpack items, both preserved original bugs).
+  `sithDSSThing_ProcessStateUpdate` backpack items, both original bugs). The
+  reconstruction rejects the chalk mark count (`Fixed:`), which has no original
+  behavior to compare with; the hand-written test `SyncGameStateRejectsTooManyChalkMarks`
+  of `sithDSSTest.c` covers it. The backpack count is still the preserved original bug.
 - `ThingFullDescription` and `Attachment`: already implemented upstream (with
   documented extensions), not part of this corpus.
 

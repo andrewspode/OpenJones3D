@@ -81,9 +81,47 @@ TEST(sithPhysics, ResetJeepWheelsSetsDefaults)
     TEST_ASSERT_EQUAL_INT(0xCDCDCDCD, state.bSkidding);
 }
 
+// Fixed 50 fps steps of the detached player physics; the thing has no mass, forces or sector, so a step only adds
+// the velocity of the step to the delta velocity.
+TEST(sithPhysics, DetachedPlayerPhysicsStepsAccumulatedTime)
+{
+    static SithThing thing;
+    memset(&thing, 0, sizeof(thing));
+    thing.moveInfo.physics.velocity.x = 2.0f;
+
+    sithPhysics_UpdateDetachedPlayerPhysics(&thing, 0.09f); // 4 steps of 0.02 s, 0.01 s left
+    TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.08f * 2.0f, thing.moveInfo.physics.deltaVelocity.x);
+    TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.01f, thing.moveInfo.physics.physicsRolloverFrames);
+
+    thing.moveInfo.physics.deltaVelocity.x = 0.0f;
+    sithPhysics_UpdateDetachedPlayerPhysics(&thing, 0.01f); // the rest completes a step
+    TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.02f * 2.0f, thing.moveInfo.physics.deltaVelocity.x);
+    TEST_ASSERT_FLOAT_WITHIN(1e-5f, 0.0f, thing.moveInfo.physics.physicsRolloverFrames);
+}
+
+// A negative time (the clock went backwards) was converted to an unsigned step count that wraps to billions of steps
+TEST(sithPhysics, DetachedPlayerPhysicsTakesNoStepsForNegativeTime)
+{
+    static const float aTimes[] = { -0.001f, -0.05f, -1.0f, -1000.0f };
+    for ( size_t i = 0; i < sizeof(aTimes) / sizeof(aTimes[0]); ++i )
+    {
+        static SithThing thing;
+        memset(&thing, 0, sizeof(thing));
+        thing.moveInfo.physics.velocity.x = 2.0f;
+
+        sithPhysics_UpdateDetachedPlayerPhysics(&thing, aTimes[i]);
+        TEST_ASSERT_EQUAL_FLOAT(0.0f, thing.moveInfo.physics.deltaVelocity.x);
+
+        // The negative time is kept in the rollover and paid back by the following time
+        TEST_ASSERT_EQUAL_FLOAT(aTimes[i], thing.moveInfo.physics.physicsRolloverFrames);
+    }
+}
+
 TEST_GROUP_RUNNER(sithPhysics)
 {
     RUN_TEST_CASE(sithPhysics, MoveToTrackFaceFrontStaysInFace);
     RUN_TEST_CASE(sithPhysics, MoveToTrackFaceFrontOvershoot);
     RUN_TEST_CASE(sithPhysics, ResetJeepWheelsSetsDefaults);
+    RUN_TEST_CASE(sithPhysics, DetachedPlayerPhysicsStepsAccumulatedTime);
+    RUN_TEST_CASE(sithPhysics, DetachedPlayerPhysicsTakesNoStepsForNegativeTime);
 }

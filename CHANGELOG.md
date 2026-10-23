@@ -302,6 +302,7 @@
   - Fixed `sithDSS_ProcessAIStatus` leaking the frames array of the AI when it is replaced by the frames of the message; the old array is freed before the new one is allocated. ()
   - Fixed `sithDSS_ProcessSyncGameState` loading the puppet track number of the flying jewel zero extended, so the stored value -1 (no track) became 65535; it is now loaded sign extended. ()
   - Fixed `sithEvent_ResetFreeBufferTable` writing -1 one entry past the end of the free event buffer table on every event system reset, which overwrote the variable placed behind it. ()
+  - Fixed `sithPhysics_UpdateDetachedPlayerPhysics` (the player physics update) running about 4 billion fixed time steps when the accumulated time is negative; a negative time now takes no steps and is kept in the rollover. Not reachable in normal play (the frame time is clamped and the rollover stays in [0, step)); only a negative time from a caller or a corrupted rollover can trigger it. ()
 
 ### Graphics:
   - Fixed an issue where active textures used in the current render frame were being removed from the cache prematurely in low VRAM situations (f37ecb7)

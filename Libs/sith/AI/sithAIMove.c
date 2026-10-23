@@ -239,11 +239,16 @@ void J3DAPI sithAIMove_UpdateMineCar(SithAIControlBlock* pLocal, float secDeltaT
     rdVector_Cross3(&rvec, &aimDir, &pThing->orient.uvec);
     rdVector_Normalize3Acc(&rvec);
 
-    // TODO: [BUG] The original never assigns the local moveState (sithAIMove_UpdateTurn sets it from sithAIMove_AIGetMoveState).
-    //       The compiler reuses the stack slot of the pLocal argument for both moveState and angle: when angle is computed the slot
-    //       holds angle's bits, so moveState is zero only if angle is +0.0f; when the actor looks straight up or down angle is never
-    //       stored and the slot still holds the never-NULL pLocal pointer, so moveState is nonzero.
+#ifdef J3D_QOL_IMPROVEMENTS
+    // Fixed: Query the move state of the actor like sithAIMove_UpdateTurn does, the original never assigns it (see below).
+    int moveState = sithAIMove_AIGetMoveState(pLocal);
+#else
+    // The original never assigns the local moveState (sithAIMove_UpdateTurn sets it from sithAIMove_AIGetMoveState).
+    // The compiler reuses the stack slot of the pLocal argument for both moveState and angle: when angle is computed the slot
+    // holds angle's bits, so moveState is zero only if angle is +0.0f; when the actor looks straight up or down angle is never
+    // stored and the slot still holds the never-NULL pLocal pointer, so moveState is nonzero.
     int moveState = 1;
+#endif
 
     float upDot = fabsf(rdVector_Dot3(&pThing->orient.uvec, &toLook));
     if ( upDot > 0.999f )
@@ -262,7 +267,9 @@ void J3DAPI sithAIMove_UpdateMineCar(SithAIControlBlock* pLocal, float secDeltaT
         rdVector_Normalize3Acc(&lookDir);
 
         float angle = rdMath_DeltaAngleNormalized(&lookDir, &aimDir, &pThing->orient.uvec);
-        memcpy(&moveState, &angle, sizeof(moveState));
+#ifndef J3D_QOL_IMPROVEMENTS
+        memcpy(&moveState, &angle, sizeof(moveState)); // Legacy: see moveState above
+#endif
 
         float turnRate = pActorInfo->maxRotVelocity * secDeltaTime;
         float maxStep  = pActorInfo->maxRotVelocity * 0.07f;

@@ -540,6 +540,7 @@
   - Fixed `sithThing_ScaleCombatDamage` scaling the damage by the combat damage scalar and the 0.9 or 0.8 factor in separate steps for fleeing actors shot by the player, which differs from the original in the last bit. (5137295)
   - Fixed `sithActor_Update` computing the raft leak damage interval in a different operation order than the original, which differs in the last bit. (33e62b1)
   - Fixed `sithPlayerControls_ProcessLookControls` scaling the keyboard look offset by `90 * secDeltaTime` before multiplying with the input step instead of `(step * 90) * secDeltaTime` like the original, which changes the last bit of the camera offset. (a036ea6)
+  - [QOL] Fixed `sithAIMove_UpdateMineCar` (turning of the mine cart AI actor) using an unassigned move state: the turning statuses were never set, and the status was reset to still only for a turn angle of exactly +0.0. The move state is now queried from the actor like in `sithAIMove_UpdateTurn`, so new turning animations can play; builds without QOL improvements keep the original behavior. ()
 
 ## v0.3.1
 ### General:

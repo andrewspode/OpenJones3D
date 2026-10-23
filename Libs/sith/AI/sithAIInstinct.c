@@ -3125,10 +3125,15 @@ int J3DAPI sithAIInstinct_SnakeMungeTestCheck(SithAIControlBlock* pLocal, rdVect
         return 0;
     }
 
-    // TODO: [BUG] The original ORs into the bit pattern of the distance argument (the path flags were never initialized)
+#ifdef J3D_QOL_IMPROVEMENTS
+    // Fixed: Start the path check flags from zero, the original ORs the flags into the bit pattern of the distance argument.
+    int mask = 0x62010;
+#else
+    // The original ORs into the bit pattern of the distance argument (the path flags were never initialized)
     int mask;
     memcpy(&mask, &distance, sizeof(mask));
     mask |= 0x62010;
+#endif
 
     rdVector3 curHitPos;
     int result = sithAIUtil_CheckPathToPos(pLocal, pCurSector, &beginPos, mask, 0.0f, distance + 0.05f, 0.3f, pDirection, &curHitPos);

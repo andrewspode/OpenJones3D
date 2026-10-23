@@ -263,8 +263,13 @@ int J3DAPI sithAIInstinct_Listen(SithAIControlBlock* pLocal, SithAIInstinct* pIn
             {
                 bHunt = 1;
 
-                // TODO: [BUG] The original never sets loudness on this path; it reads the stack slot of the pInstinct argument as a float
+#ifdef J3D_QOL_IMPROVEMENTS
+                // Fixed: Use the loudness of the heard sound like the other paths, the original never sets it here.
+                loudness = pSectorInfo->aLevelAtTransmittingPos[0];
+#else
+                // The original never sets loudness on this path; it reads the stack slot of the pInstinct argument as a float
                 memcpy(&loudness, &pInstinct, sizeof(loudness));
+#endif
             }
             else if ( !thingVis )
             {

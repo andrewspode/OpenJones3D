@@ -304,6 +304,7 @@
   - Fixed `sithEvent_ResetFreeBufferTable` writing -1 one entry past the end of the free event buffer table on every event system reset, which overwrote the variable placed behind it. ()
   - Fixed `sithPhysics_UpdateDetachedPlayerPhysics` (the player physics update) running about 4 billion fixed time steps when the accumulated time is negative; a negative time now takes no steps and is kept in the rollover. Not reachable in normal play (the frame time is clamped and the rollover stays in [0, step)); only a negative time from a caller or a corrupted rollover can trigger it. ()
   - Fixed `sithAIInstinct_PrimaryFire` computing the randomized burst count (AI mode flag 0x100000) with a division by zero for an authored burst count of 6 (or -6); that count is used as authored now. ()
+  - Fixed `sithAIUtil_CheckPathToPos` reading uninitialized side end positions when the move distance is too short to test a side (garbage was used for the side scores and returned as the end position); both start at the start position now. ()
 
 ### Graphics:
   - Fixed an issue where active textures used in the current render frame were being removed from the cache prematurely in low VRAM situations (f37ecb7)

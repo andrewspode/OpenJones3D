@@ -1996,7 +1996,8 @@ int J3DAPI sithAIUtil_CheckPathToPos(SithAIControlBlock* pLocal, SithSector* pSt
     {
         int aScores[2] = { 0, 0 };
         int aResults[2] = { 0, 0 };
-        rdVector3 aEndPos[2];
+        // Fixed: Initialize the end positions to the start position, the original reads them uninitialized when a side is not tested (the move distance is too short for it).
+        rdVector3 aEndPos[2] = { *startPos, *startPos };
 
         int side = 1;
         int bSideDone = 0;

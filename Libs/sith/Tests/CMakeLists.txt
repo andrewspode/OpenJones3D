@@ -1,6 +1,7 @@
 set(SITH_TEST_SOURCES
     sithTestRunner.c
     ../Engine/Tests/sithPhysicsTest.c
+    ../Gameplay/Tests/sithEventTest.c
     ../World/Tests/sithTemplateTest.c
     ../World/Tests/sithThingTest.c
     ../World/Tests/sithVoiceTest.c

@@ -301,6 +301,7 @@
   - Fixed `sithDSSThing_ProcessStateUpdate` storing the backpack items of an item thing without checking their count against the 32 backpack slots, which wrote past the backpack array; a state update with a count above 32 (or negative) is now rejected. ()
   - Fixed `sithDSS_ProcessAIStatus` leaking the frames array of the AI when it is replaced by the frames of the message; the old array is freed before the new one is allocated. ()
   - Fixed `sithDSS_ProcessSyncGameState` loading the puppet track number of the flying jewel zero extended, so the stored value -1 (no track) became 65535; it is now loaded sign extended. ()
+  - Fixed `sithEvent_ResetFreeBufferTable` writing -1 one entry past the end of the free event buffer table on every event system reset, which overwrote the variable placed behind it. ()
 
 ### Graphics:
   - Fixed an issue where active textures used in the current render frame were being removed from the cache prematurely in low VRAM situations (f37ecb7)

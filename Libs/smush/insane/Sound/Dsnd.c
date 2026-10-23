@@ -389,12 +389,12 @@ void dsnd_Release(void)
         IDirectSoundBuffer_SetVolume(dsnd_pPrimary, dsnd_savedVolume);
         IDirectSoundBuffer_Release(dsnd_pPrimary);
         dsnd_pPrimary = NULL;
-        dsnd_ownDS = 0;
     }
 
-    // TODO: [BUG] dsnd_ownDS was cleared above, so the DirectSound object the driver created itself is never released.
+    // Fixed: The original clears dsnd_ownDS in the block above, so the DirectSound object the driver created itself is never released. Clear it after the release
     if ( dsnd_pDS && dsnd_ownDS ) {
         IDirectSound_Release(dsnd_pDS);
+        dsnd_ownDS = 0;
     }
 
     dsnd_pDS = NULL;
@@ -427,6 +427,14 @@ void Dsnd_TestReset(void)
     dsnd_ownDS = 0;
     dsnd_hTimer = 0;
     dsnd_numBlocks = 0;
+}
+
+// Added: Test-only setup of the state after dsnd_Init created the DirectSound object (the primary buffer is given, the object is the configured one).
+void Dsnd_TestSetOwned(LPDIRECTSOUNDBUFFER pPrimary);
+void Dsnd_TestSetOwned(LPDIRECTSOUNDBUFFER pPrimary)
+{
+    dsnd_pPrimary = pPrimary;
+    dsnd_ownDS = 1;
 }
 #endif
 
